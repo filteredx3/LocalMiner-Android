@@ -37,7 +37,7 @@ fi
 
 # Paper server URL (1.18.1), update as necessary
 DEF_Paper_INSTALLER="https://fill-data.papermc.io/v1/objects/1798de5d5f81f6aa4deedf8372326e17796a2566d46a55486bfbc9fbc47c7394/paper-1.21.8-56.jar"
-DEF_VANILLA_SERVER="https://launcher.mojang.com/v1/objects/125e5adf40c659fd3bce3e66e67a16bb49ecc1b9/server.jar"
+DEF_VANILLA_SERVER="https://piston-data.mojang.com/v1/objects/6bce4ef400e4efaa63a13d5e6f6b500be969ef81/server.jar"
 if [ "$USE_Paper" = "yes" ] ; then
   read -p "Custom Paper installer (leave blank for default: $DEF_Paper_INSTALLER)? " Paper_SERVER
   Paper_SERVER=${Paper_SERVER:-$DEF_Paper_INSTALLER}

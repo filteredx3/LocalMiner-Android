@@ -32,7 +32,7 @@ USE_NGROK=${USE_NGROK:-yes}
 if [ "$USE_NGROK" = "yes" ] ; then
   read -p "ngrok authtoken (REQUIRED see https://dashboard.ngrok.com/get-started/your-authtoken): " AUTHTOKEN
   read -p "ngrok region ([us]/eu/ap/au/in): " NGROK_REGION
-  NGROK_REGION=${NGROK_REGION:-us}
+  NGROK_REGION=${NGROK_REGION:-eu}
 fi
 
 # Paper server URL (1.18.1), update as necessary

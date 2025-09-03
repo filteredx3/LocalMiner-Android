@@ -89,8 +89,74 @@ if [ $? -ne 0 ]; then
     echo "You can find Beta 1.7.3 server jars in various Minecraft archives online."
 fi
 
-# Create server startup script with lower memory allocation for Termux
-echo "cd LocalMiner && java -Xmx512M -Xms256M -jar ${EXEC_SERVER_NAME} nogui" > ../m.sh
+# Create server startup script with segfault fixes
+cat > ../m.sh << 'EOF'
+#!/data/data/com.termux/files/usr/bin/bash
+
+# Source environment variables
+source ~/.bashrc
+
+# Set Java environment if not set
+if [ -z "$JAVA_HOME" ]; then
+    export JAVA_HOME=$PREFIX/opt/openjdk
+    export PATH=$PREFIX/bin:$JAVA_HOME/bin:$PATH
+fi
+
+# Check if Java is available
+if ! command -v java &> /dev/null; then
+    echo "ERROR: Java not found!"
+    echo "Available Java installations:"
+    find $PREFIX -name java 2>/dev/null
+    echo "Try running: pkg install openjdk-8"
+    exit 1
+fi
+
+echo "Using Java version:"
+java -version
+
+echo "Starting Minecraft Beta 1.7.3 Server with segfault fixes..."
+cd LocalMiner
+
+# Try different JVM options to avoid segmentation faults
+echo "Attempting startup with ARM64/Termux optimized settings..."
+
+# Method 1: Reduced memory and ARM64 optimizations
+java -server -Xmx256M -Xms128M \
+     -XX:+UnlockExperimentalVMOptions \
+     -XX:+UseG1GC \
+     -XX:G1HeapRegionSize=4M \
+     -XX:+UnlockDiagnosticVMOptions \
+     -XX:+G1UseAdaptiveIHOP \
+     -XX:G1MixedGCCountTarget=3 \
+     -XX:+DisableExplicitGC \
+     -Dfile.encoding=UTF-8 \
+     -Djava.awt.headless=true \
+     -jar minecraft_server.jar nogui
+
+# If that fails, try Method 2: Even more conservative settings
+if [ $? -ne 0 ]; then
+    echo "Method 1 failed, trying conservative settings..."
+    java -client -Xmx128M -Xms64M \
+         -XX:+UseSerialGC \
+         -Djava.awt.headless=true \
+         -Dfile.encoding=UTF-8 \
+         -jar minecraft_server.jar nogui
+fi
+
+# If that fails, try Method 3: Minimal settings
+if [ $? -ne 0 ]; then
+    echo "Method 2 failed, trying minimal settings..."
+    java -Xmx96M -Xms32M \
+         -Djava.awt.headless=true \
+         -jar minecraft_server.jar nogui
+fi
+
+# If that fails, try Method 4: No JVM options at all
+if [ $? -ne 0 ]; then
+    echo "All optimized methods failed, trying basic Java..."
+    java -jar minecraft_server.jar nogui
+fi
+EOF
 chmod +x ../m.sh
 
 # Create server.properties file with Beta 1.7.3 appropriate settings

@@ -37,17 +37,17 @@ fi
 EXEC_SERVER_NAME="minecraft_server.jar"
 
 ##### PROOT + JAVA 8 SETUP #####
-echo "STATUS: installing Debian proot with Java 8"
+echo "STATUS: installing Debian bullseye proot with Java 8"
 pkg install proot-distro wget unzip -y
 
-if ! proot-distro list | grep -q debian; then
-  proot-distro install debian
+if ! proot-distro list | grep -q debian-bullseye; then
+  proot-distro install debian-bullseye
 fi
 
 cat > $PREFIX/bin/localminer-debian.sh <<'EOF'
 #!/bin/bash
 set -e
-proot-distro login debian -- /bin/bash -c "
+proot-distro login debian-bullseye -- /bin/bash -c "
   apt update &&
   apt install -y openjdk-8-jre wget unzip &&
   mkdir -p /root/LocalMiner &&

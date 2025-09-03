@@ -65,7 +65,7 @@ if [ "$USE_Paper" = "yes" ] ; then
   java -jar $installer_jar --installServer
   # mv $exec_jar $EXEC_SERVER_NAME
   # rm $installer_jar
-  echo "cd LocalMiner && java -Xmx1G -jar paper-1.20.4-405.jar nogui" > ../m.sh
+  echo "cd LocalMiner && java -Xmx1G -jar paper-1.21.8-56.jar nogui" > ../m.sh
 else
   wget -O $EXEC_SERVER_NAME $VANILLA_SERVER
   echo "cd LocalMiner && java -Xmx1G -jar ${EXEC_SERVER_NAME} nogui" > ../m.sh

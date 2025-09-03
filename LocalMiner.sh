@@ -44,20 +44,30 @@ echo "STATUS: Installing required packages for Termux..."
 pkg update -y
 pkg install wget curl unzip zip -y
 
-# Install OpenJDK 11 (works better than 8 on aarch64 Termux and is compatible with older MC versions)
-echo "STATUS: Installing OpenJDK 11 (compatible with Beta 1.7.3)..."
-pkg install openjdk-11 -y
+# Install Java - try different versions available in Termux
+echo "STATUS: Installing Java (compatible with Beta 1.7.3)..."
+
+# Try OpenJDK 17 first (most stable in current Termux)
+echo "Attempting to install OpenJDK 17..."
+pkg install openjdk-17 -y
 
 # Verify Java installation
 echo "STATUS: Verifying Java installation..."
 java -version
 if [ $? -ne 0 ]; then
-    echo "ERROR: Java installation failed!"
-    echo "Trying alternative Java installation method..."
-    pkg install ecj dx -y
+    echo "OpenJDK 17 failed, trying OpenJDK 11..."
+    pkg install openjdk-11 -y
+    java -version
     if [ $? -ne 0 ]; then
-        echo "ERROR: Could not install Java. Please install manually."
-        exit 1
+        echo "OpenJDK 11 failed, trying alternative method..."
+        # Install essential Java tools available in Termux
+        pkg install ecj dx -y
+        if [ $? -ne 0 ]; then
+            echo "ERROR: Could not install Java."
+            echo "Please try manually: pkg install openjdk-17"
+            echo "Or check available Java packages: pkg search openjdk"
+            exit 1
+        fi
     fi
 fi
 

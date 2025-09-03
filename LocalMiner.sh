@@ -24,7 +24,7 @@ if [ "$USE_NGROK" = "yes" ]; then
 fi
 
 DEF_Paper_INSTALLER="https://api.papermc.io/v2/projects/paper/versions/1.20.4/builds/405/downloads/paper-1.20.4-405.jar"
-DEF_VANILLA_SERVER="https://launcher.mojang.com/v1/objects/125e5adf40c659fd3bce3e66e67a16bb49ecc1b9/server.jar"
+DEF_VANILLA_SERVER="http://web.archive.org/web/20200226130144/https://betacraft.pl/server-archive/minecraft/b1.7.3.jar"
 
 if [ "$USE_Paper" = "yes" ]; then
   read -p "Custom Paper installer (leave blank for default: $DEF_Paper_INSTALLER)? " Paper_SERVER

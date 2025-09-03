@@ -36,7 +36,7 @@ if [ "$USE_NGROK" = "yes" ] ; then
 fi
 
 # Paper server URL (1.18.1), update as necessary
-DEF_Paper_INSTALLER="https://api.papermc.io/v2/projects/paper/versions/1.20.4/builds/405/downloads/paper-1.20.4-405.jar"
+DEF_Paper_INSTALLER="https://fill-data.papermc.io/v1/objects/1798de5d5f81f6aa4deedf8372326e17796a2566d46a55486bfbc9fbc47c7394/paper-1.21.8-56.jar"
 DEF_VANILLA_SERVER="https://launcher.mojang.com/v1/objects/125e5adf40c659fd3bce3e66e67a16bb49ecc1b9/server.jar"
 if [ "$USE_Paper" = "yes" ] ; then
   read -p "Custom Paper installer (leave blank for default: $DEF_Paper_INSTALLER)? " Paper_SERVER

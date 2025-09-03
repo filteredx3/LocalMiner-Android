@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 echo "  __                _ _____ _                "
 echo " |  |   ___ ___ ___| |     |_|___ ___ ___ ©️  "
@@ -35,40 +36,50 @@ fi
 
 EXEC_SERVER_NAME="minecraft_server.jar"
 
-##### JAVA INSTALLATION #####
-echo "STATUS: installing Java 8 (required for Beta 1.7.3)"
-pkg uninstall openjdk-17 -y >/dev/null 2>&1
-pkg install unzip -y
+##### PROOT + JAVA 8 SETUP #####
+echo "STATUS: installing Debian proot with Java 8"
+pkg install proot-distro wget unzip -y
 
-if [ ! -x "$HOME/.java/bin/java" ]; then
-  wget -q https://raw.githubusercontent.com/MasterDevX/java/master/installjava -O installjava
-  bash installjava
-  rm installjava
+if ! proot-distro list | grep -q debian; then
+  proot-distro install debian
 fi
 
-export PATH="$HOME/.java/bin:$PATH"
-java -version || { echo "ERROR: Java install failed"; exit 1; }
+cat > $PREFIX/bin/localminer-debian.sh <<'EOF'
+#!/bin/bash
+set -e
+proot-distro login debian -- /bin/bash -c "
+  apt update &&
+  apt install -y openjdk-8-jre wget unzip &&
+  mkdir -p /root/LocalMiner &&
+  cd /root/LocalMiner &&
+  echo 'eula=true' > eula.txt
+"
+EOF
+chmod +x $PREFIX/bin/localminer-debian.sh
+$PREFIX/bin/localminer-debian.sh
 
-##### MINECRAFT/NGROK SETUP #####
-echo "STATUS: setting up Minecraft Server"
-mkdir -p LocalMiner
-cd LocalMiner
-echo "eula=true" > eula.txt
-
+##### MINECRAFT SERVER SETUP #####
 if [ "$USE_Paper" = "yes" ]; then
-  wget $Paper_SERVER
-  installer_jar=$(basename $Paper_SERVER)
-  java -jar $installer_jar --installServer
-  echo "cd LocalMiner && java -Xmx1G -jar paper-1.20.4-405.jar nogui" > ../m.sh
+  proot-distro login debian -- /bin/bash -c "
+    cd /root/LocalMiner &&
+    wget $Paper_SERVER &&
+    installer_jar=\$(basename $Paper_SERVER) &&
+    java -jar \$installer_jar --installServer &&
+    echo \"cd /root/LocalMiner && java -Xmx1G -jar paper-1.20.4-405.jar nogui\" > /root/m.sh &&
+    chmod +x /root/m.sh
+  "
 else
-  wget -O $EXEC_SERVER_NAME $VANILLA_SERVER
-  echo "cd LocalMiner && java -Xmx1G -jar ${EXEC_SERVER_NAME} nogui" > ../m.sh
+  proot-distro login debian -- /bin/bash -c "
+    cd /root/LocalMiner &&
+    wget -O $EXEC_SERVER_NAME $VANILLA_SERVER &&
+    echo \"cd /root/LocalMiner && java -Xmx1G -jar $EXEC_SERVER_NAME nogui\" > /root/m.sh &&
+    chmod +x /root/m.sh
+  "
 fi
-chmod +x ../m.sh
 
+##### NGROK SETUP #####
 if [ "$USE_NGROK" = "yes" ]; then
   echo "STATUS: setting up ngrok"
-  cd ..
   wget -O ngrok.tgz https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm.tgz
   tar -xzf ngrok.tgz
   chmod +x ngrok
@@ -80,6 +91,6 @@ fi
 echo
 echo "-------------------------------------------------"
 echo "STATUS: installation complete!"
-echo "Run ./m.sh to start Minecraft server"
-echo "Run ./n.sh in another session to start ngrok"
+echo "To start server:  proot-distro login debian -- /root/m.sh"
+echo "To start ngrok :  ./n.sh   (in a new Termux session)"
 echo "-------------------------------------------------"

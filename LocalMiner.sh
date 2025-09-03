@@ -76,11 +76,28 @@ chmod +x ../m.sh
 if [ "$USE_NGROK" = "yes" ] ; then
   echo "STATUS: setting up ngrok"
   cd ..
-  wget -O ngrok.tgz https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-arm.tgz && tar ngrok.tgz && chmod +x ngrok
+
+  # pick correct archive by CPU
+  arch="$(uname -m)"
+  case "$arch" in
+    aarch64) NGROK_ARCH="arm64" ;;
+    armv7l|armv8l|armv6l) NGROK_ARCH="arm" ;;
+    x86_64) NGROK_ARCH="amd64" ;;
+    i*86) NGROK_ARCH="386" ;;
+    *) echo "Unsupported architecture: $arch"; exit 1 ;;
+  esac
+
+  url="https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-${NGROK_ARCH}.tgz"
+  wget -O ngrok.tgz "$url"
+  tar -xzf ngrok.tgz           # <-- correct extraction
+  chmod +x ngrok
+  rm ngrok.tgz
+
   echo "./ngrok tcp --region=$NGROK_REGION 25565" > n.sh
   chmod +x n.sh
-  ./ngrok authtoken $AUTHTOKEN
+  ./ngrok authtoken "$AUTHTOKEN"
 fi
+
 
 echo " "
 echo "-------------------------------------------------"

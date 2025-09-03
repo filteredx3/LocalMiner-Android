@@ -47,7 +47,7 @@ else
 fi
 
 # don't need to edit this
-EXEC_SERVER_NAME="server.jar"
+EXEC_SERVER_NAME="minecraft_server.jar"
 
 ##### MINECRAFT/NGROK INSTALLATION #####
 
